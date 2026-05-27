@@ -27,8 +27,25 @@ export default function LoginPage() {
       return;
     }
 
-    // Explicitly push to /admin upon successful login
-    router.replace('/admin');
+    const { data: userData, error: profileError } = await supabase
+      .from('sr_profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profileError || !userData) {
+      setError("Profil tidak ditemukan.");
+      setLoading(false);
+      return;
+    }
+
+    if (userData.role === 'SISWA') {
+      router.replace('/siswa');
+    } else if (userData.role === 'ORANG_TUA') {
+      router.replace('/orangtua');
+    } else {
+      router.replace('/admin');
+    }
   };
 
   return (

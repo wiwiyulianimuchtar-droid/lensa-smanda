@@ -47,9 +47,6 @@ export const AuthProvider = ({ children }) => {
         if (session) {
           if (mounted) setUser(session.user);
           await fetchProfile(session.user.id);
-          if (pathname && pathname.includes('/login') && mounted) {
-            router.replace('/admin');
-          }
         } else {
           if (mounted) {
             setUser(null);
@@ -77,10 +74,19 @@ export const AuthProvider = ({ children }) => {
       
     if (data) {
       setProfile(data);
-      // Kick out students from web admin
-      if (data.role === 'SISWA' && pathname?.startsWith('/admin')) {
-        alert("Siswa tidak diizinkan masuk ke Web Dashboard.");
-        await supabase.auth.signOut();
+      // Role-based route protection
+      if (data.role === 'SISWA') {
+        if (pathname?.startsWith('/admin') || pathname?.startsWith('/orangtua') || pathname === '/login' || pathname === '/') {
+          router.replace('/siswa');
+        }
+      } else if (data.role === 'ORANG_TUA') {
+        if (pathname?.startsWith('/admin') || pathname?.startsWith('/siswa') || pathname === '/login' || pathname === '/') {
+          router.replace('/orangtua');
+        }
+      } else if (data.role === 'GURU' || data.role === 'ADMIN') {
+        if (pathname?.startsWith('/siswa') || pathname?.startsWith('/orangtua') || pathname === '/login' || pathname === '/') {
+          router.replace('/admin');
+        }
       }
     }
   };

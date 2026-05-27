@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Users, MapPin, Award, LogOut, FileText, BookOpen, GraduationCap, Archive, Megaphone, Settings } from 'lucide-react';
+import { Home, Users, MapPin, Award, LogOut, FileText, BookOpen, GraduationCap, Archive, Megaphone, Settings, QrCode } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 import { useAuth } from '@/components/AuthProvider';
@@ -40,6 +40,11 @@ export default function Sidebar({ role = 'ADMIN' }) {
   // 3. Presensi & Piket (Admin atau Guru Piket)
   if (currentUser.role === 'ADMIN' || currentUser.is_piket) {
     links.push({ name: 'Presensi Pagi (Piket)', href: '/admin/piket', icon: MapPin });
+  }
+
+  // 3.5. Sesi Presensi QR (Admin atau Guru)
+  if (currentUser.role === 'ADMIN' || currentUser.role === 'GURU') {
+    links.push({ name: 'Sesi Presensi QR', href: '/admin/presensi', icon: QrCode });
   }
 
   // 4. Kelola Kelas / Kesiswaan (Admin atau Wali Kelas)
