@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #f59e0b; /* Emas / Amber */
-  --primary-hover: #d97706;
-  --secondary-color: #3b82f6; /* Biru */
-  --background-dark: #020617; /* Slate Sangat Gelap / Navy */
-  --surface-dark: rgba(15, 23, 42, 0.8);
-  --surface-border: rgba(255, 255, 255, 0.08);
+  --primary-color: #2563eb; /* Biru Vibrant */
+  --primary-hover: #1d4ed8;
+  --secondary-color: #60a5fa; /* Biru Terang */
+  --background-dark: #090d16; /* Navy Sangat Gelap / Pekat */
+  --surface-dark: #162032; /* Navy Drawer / Kartu Gelap (Lebih terang dari sebelumnya agar tidak blend) */
+  --surface-border: rgba(255, 255, 255, 0.05);
   --text-light: #f8fafc;
   --text-muted: #94a3b8;
   --danger-color: #ef4444;
@@ -15,6 +15,67 @@
   --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   --blur-glass: blur(16px);
   --transition-speed: 0.3s;
+  
+  --tab-nav-bg: rgba(22, 32, 50, 0.95);
+  --radial-glow-1: rgba(37, 99, 235, 0.15);
+  --radial-glow-2: rgba(96, 165, 250, 0.08);
+
+  /* Form & Button variables */
+  --input-bg: rgba(9, 13, 22, 0.6);
+  --input-color: #ffffff;
+  --btn-secondary-bg: rgba(255, 255, 255, 0.05);
+  --btn-secondary-text: #ffffff;
+  --btn-secondary-border: rgba(255, 255, 255, 0.1);
+
+  /* Banner Greeting variables */
+  --banner-bg: #2563eb;
+  --banner-text: #ffffff;
+  --banner-text-muted: rgba(255, 255, 255, 0.85);
+  --banner-border: rgba(255, 255, 255, 0.1);
+  --banner-accent: #f59e0b; /* Aksen Kuning/Orange */
+
+  /* Card inner elements */
+  --card-inner-bg: rgba(0, 0, 0, 0.2);
+
+  /* Mobile Shell background */
+  --shell-bg: rgba(15, 23, 42, 0.4);
+}
+
+html.light {
+  --primary-color: #2563eb; /* Biru Vibrant */
+  --primary-hover: #1d4ed8;
+  --secondary-color: #3b82f6;
+  
+  --background-dark: #ffffff; /* Putih bersih */
+  --surface-dark: #ffffff; /* Putih bersih */
+  --surface-border: #e1ebff; /* Garis/border biru muda e1ebff */
+  --text-light: #1e293b; /* Slate 800 */
+  --text-muted: #64748b; /* Slate 500 */
+  --shadow-glass: 0 4px 12px rgba(0, 0, 0, 0.05); /* Shadow lebih tipis & rapat agar tidak terlalu melebar */
+  
+  --tab-nav-bg: #ffffff;
+  --radial-glow-1: rgba(37, 99, 235, 0.04);
+  --radial-glow-2: rgba(59, 130, 246, 0.02);
+
+  /* Form & Button variables for Light Mode */
+  --input-bg: #ffffff;
+  --input-color: #1e293b;
+  --btn-secondary-bg: rgba(0, 0, 0, 0.03);
+  --btn-secondary-text: #1e293b;
+  --btn-secondary-border: #e1ebff;
+
+  /* Banner Greeting variables for Light Mode */
+  --banner-bg: #e0f2fe; /* Biru muda lembut */
+  --banner-text: #1d4ed8; /* Biru tua kontras */
+  --banner-text-muted: #0369a1;
+  --banner-border: #bae6fd;
+  --banner-accent: #f59e0b; /* Aksen Orange/Kuning (sama dengan Mode Gelap) */
+
+  /* Card inner elements for Light Mode */
+  --card-inner-bg: #f1f5f9; /* Abu-abu kebiruan terang */
+
+  /* Mobile Shell background for Light Mode (Reduced by another 50% to 2% opacity) */
+  --shell-bg: rgba(15, 23, 42, 0.02);
 }
 
 * {
@@ -29,8 +90,8 @@ body {
   color: var(--text-light);
   min-height: 100vh;
   /* Premium modern gradient background - Navy & Gold */
-  background: radial-gradient(circle at 15% 50%, rgba(30, 58, 138, 0.2), transparent 30%),
-              radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.15), transparent 30%);
+  background: radial-gradient(circle at 15% 50%, var(--radial-glow-1), transparent 30%),
+              radial-gradient(circle at 85% 30%, var(--radial-glow-2), transparent 30%);
   background-color: var(--background-dark);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
@@ -51,6 +112,7 @@ button {
 
 input, select, textarea {
   font-family: inherit;
+  font-size: 16px; /* Prevent automatic mobile browser zooming on input focus */
   outline: none;
 }
 
@@ -98,16 +160,17 @@ h1, h2, h3, h4 {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
   padding: 12px 24px;
   border-radius: var(--radius-md);
   font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--btn-secondary-border);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--btn-secondary-bg);
+  opacity: 0.9;
   transform: translateY(-2px);
 }
 
@@ -116,7 +179,19 @@ h1, h2, h3, h4 {
   color: white;
   padding: 10px 16px;
   border-radius: var(--radius-md);
-  font-weight: 500;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
+  transition: all var(--transition-speed) ease;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
 }
 
 /* Forms */
@@ -134,18 +209,26 @@ h1, h2, h3, h4 {
 }
 
 .form-input {
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--input-bg);
   border: 1px solid var(--surface-border);
-  color: white;
+  color: var(--input-color);
   padding: 12px 16px;
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: all var(--transition-speed) ease;
 }
 
-.form-input:focus {
+.form-input input {
+  color: inherit !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  width: 100%;
+}
+
+.form-input:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 0 0 2px rgba(9, 165, 82, 0.2);
 }
 
 .form-input:disabled {
@@ -155,13 +238,13 @@ h1, h2, h3, h4 {
   border-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Fix browser autofill styling for dark mode */
+/* Fix browser autofill styling for dark mode & light mode */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
-input:-webkit-autofill:active{
-  -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
-  -webkit-text-fill-color: white !important;
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--background-dark) inset !important;
+  -webkit-text-fill-color: var(--text-light) !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -173,12 +256,13 @@ input:-webkit-autofill:active{
 
 .sidebar {
   width: 280px;
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--surface-dark);
   backdrop-filter: blur(16px);
   border-right: 1px solid var(--surface-border);
   padding: 24px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .sidebar-logo {
@@ -188,7 +272,7 @@ input:-webkit-autofill:active{
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 32px;
-  color: white;
+  color: var(--text-light);
 }
 
 .nav-links {
@@ -210,7 +294,7 @@ input:-webkit-autofill:active{
 }
 
 .nav-link:hover, .nav-link.active {
-  background: rgba(79, 70, 229, 0.1);
+  background: rgba(9, 165, 82, 0.1);
   color: var(--primary-color);
 }
 
@@ -242,7 +326,7 @@ input:-webkit-autofill:active{
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-light);
 }
 
 .stat-icon {
@@ -417,7 +501,7 @@ input:-webkit-autofill:active{
 }
 
 .tab-button:hover {
-  color: white;
+  color: var(--text-light);
 }
 
 .tab-button.active {
@@ -473,4 +557,202 @@ input:-webkit-autofill:active{
     color: black !important;
     background: transparent !important;
   }
+}
+
+/* Responsive login card padding */
+.login-card {
+  padding: 40px 30px;
+}
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 20px !important;
+  }
+}
+
+/* Premium Floating Bottom Navbar */
+.mobile-navbar {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px) !important;
+  max-width: 468px;
+  height: 68px;
+  background: var(--tab-nav-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+  padding: 0 12px;
+  transition: all 0.3s ease;
+}
+
+/* Nav Link Item */
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 500;
+  text-decoration: none;
+  flex: 1;
+  height: 100%;
+  padding: 8px 0;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.mobile-nav-item svg {
+  color: var(--text-muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Active Link styling */
+.mobile-nav-item.active {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+}
+
+.mobile-nav-item.active svg {
+  color: var(--primary-color) !important;
+  transform: translateY(-2px) scale(1.1);
+}
+
+/* Active bottom dot indicator */
+.mobile-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  box-shadow: 0 0 8px var(--primary-color);
+}
+
+/* Container for the floating bottom navbar scanner button */
+.mobile-nav-item-floating-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: visible;
+}
+
+.mobile-nav-floating-btn {
+  position: absolute;
+  bottom: 20px; /* Push upwards to float */
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 110;
+  border: 4px solid var(--tab-nav-bg); /* Memberikan gap/border terintegrasi dengan background bar */
+}
+
+.mobile-nav-floating-btn svg {
+  color: #ffffff !important;
+  transition: transform 0.2s ease;
+}
+
+.mobile-nav-floating-btn:hover, .mobile-nav-floating-btn.active {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.6);
+  background: var(--primary-hover);
+}
+
+/* Layanan Lainnya hover animations */
+.service-item {
+  transition: transform 0.2s ease;
+}
+.service-item:hover {
+  transform: translateY(-2px);
+}
+.service-item:hover .service-icon-wrapper {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  filter: brightness(1.05);
+}
+
+/* Mobile header for Admin/Guru on mobile screens */
+.admin-mobile-header {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform var(--transition-speed) cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    padding: 20px;
+    padding-top: 84px; /* Space for mobile header */
+    width: 100vw;
+  }
+  
+  .admin-mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface-dark);
+    backdrop-filter: var(--blur-glass);
+    -webkit-backdrop-filter: var(--blur-glass);
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 900;
+    box-shadow: var(--shadow-glass);
+  }
+  
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(2, 6, 23, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 950;
+    animation: fadeIn 0.2s ease forwards;
+  }
+
+  .sidebar-close-btn {
+    display: block !important;
+  }
+}
+
+.sidebar-close-btn {
+  display: none;
 }

@@ -14,12 +14,6 @@ export default function ReportsPage() {
   const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'PRESENSI' | 'POSITIF' | 'NEGATIF'
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchLedgerData();
-    }
-  }, [user]);
-
   const fetchLedgerData = async () => {
     setLoading(true);
     try {
@@ -49,17 +43,30 @@ export default function ReportsPage() {
 
         // Fetch attendance sessions details
         if (attendanceIds.length > 0) {
-          const { data: attData } = await supabase
-            .from('sr_attendance_records')
-            .select(`
-              id, status,
-              session:session_id (session_type)
-            `)
-            .in('id', attendanceIds);
+          const recRes = await fetch('/api/records');
+          const attData = recRes.ok ? await recRes.json() : [];
+          const sessionRes = await fetch('/api/sessions');
+          const sessionsList = sessionRes.ok ? await sessionRes.json() : [];
+
+          const getSessionTypeLabel = (session_type) => {
+            switch (session_type) {
+              case 'HARIAN_MASUK': return 'Presensi Masuk Harian';
+              case 'HARIAN_PULANG': return 'Presensi Pulang Harian';
+              case 'MAPEL': return 'Mapel KBM';
+              case 'KEGIATAN': return 'Kegiatan';
+              case 'UJIAN': return 'Ujian';
+              case 'EKSKUL': return 'Ekskul';
+              default: return 'Sesi Kelas';
+            }
+          };
+
           if (attData) {
             attData.forEach(r => {
-              const label = r.session?.session_type === 'HARIAN_MASUK' ? 'Presensi Masuk Harian' : 'Presensi Pulang Harian';
-              attendanceMap[r.id] = `${label} (${r.status})`;
+              if (attendanceIds.includes(r.id)) {
+                const session = sessionsList.find(s => s.id === r.session_id);
+                const label = getSessionTypeLabel(session?.session_type || r.session?.session_type);
+                attendanceMap[r.id] = `${label} (${r.status})`;
+              }
             });
           }
         }
@@ -115,6 +122,12 @@ export default function ReportsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchLedgerData();
+    }
+  }, [user]);
 
   const getPredicate = (points) => {
     if (points >= 2500) return { label: 'ISTIMEWA', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)' };

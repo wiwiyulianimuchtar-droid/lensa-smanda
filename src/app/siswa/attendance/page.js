@@ -152,23 +152,26 @@ export default function AttendancePage() {
 
         try {
           // 2. Fetch Session Data
-          const { data: sessionData, error: sessionError } = await supabase
-            .from('sr_attendance_sessions')
-            .select('*')
-            .eq('qr_token', token)
-            .single();
+          const sessionRes = await fetch('/api/sessions');
+          if (!sessionRes.ok) throw new Error("Gagal mengambil data sesi.");
+          const allSessions = await sessionRes.json();
+          const sessionData = allSessions.find(s => s.qr_token === token);
 
-          if (sessionError || !sessionData) {
-            alert("QR Code/Token presensi tidak valid atau telah dihapus.");
+          if (!sessionData) {
+            alert("QR Code/Token presensi tidak valid atau telah kedaluwarsa.");
             setLoading(false);
             setScanned(false);
             return;
           }
 
           // Check target class
-          const isTargetClass = 
-            sessionData.target_class === 'SEMUA' || 
-            sessionData.target_class === profile?.class_name;
+          let isTargetClass = false;
+          if (sessionData.target_class === 'SEMUA') {
+            isTargetClass = true;
+          } else if (sessionData.target_class && profile?.class_name) {
+            const classesList = sessionData.target_class.split(',').map(c => c.trim().toLowerCase());
+            isTargetClass = classesList.includes(profile.class_name.trim().toLowerCase());
+          }
 
           if (!isTargetClass) {
             alert(`Presensi ini khusus untuk kelas: ${sessionData.target_class}. Kelas Anda: ${profile?.class_name || 'Tidak ada'}`);
@@ -179,6 +182,31 @@ export default function AttendancePage() {
 
           // Check if session has expired or not started yet
           const now = new Date();
+          const dayOfWeek = now.getDay(); // 0 is Sunday, 6 is Saturday
+
+          // Validation rules for HARIAN_MASUK
+          if (sessionData.session_type === 'HARIAN_MASUK') {
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+              alert("Presensi Harian Masuk hanya dapat dilakukan pada hari kerja (Senin - Jumat).");
+              setLoading(false);
+              setScanned(false);
+              return;
+            }
+
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentTimeVal = currentHour * 60 + currentMinute;
+            const startTimeVal = 6 * 60; // 06:00
+            const endTimeVal = 7 * 60 + 15; // 07:15
+
+            if (currentTimeVal < startTimeVal || currentTimeVal > endTimeVal) {
+              alert("Presensi Harian Masuk ditutup. Presensi hanya dilayani pada pukul 06:00 - 07:15 WIB.");
+              setLoading(false);
+              setScanned(false);
+              return;
+            }
+          }
+
           const startTime = new Date(sessionData.start_time);
           const endTime = new Date(sessionData.end_time);
 
@@ -197,18 +225,15 @@ export default function AttendancePage() {
           }
 
           // Check if student has checked in already
-          const { data: existingRecord } = await supabase
-            .from('sr_attendance_records')
-            .select('id')
-            .eq('session_id', sessionData.id)
-            .eq('student_id', user.id)
-            .maybeSingle();
-
-          if (existingRecord) {
-            alert("Anda sudah melakukan presensi untuk sesi ini.");
-            setStatusMsg("Presensi tercatat sebelumnya.");
-            setLoading(false);
-            return;
+          const recRes = await fetch(`/api/records?session_id=${sessionData.id}&student_id=${user.id}`);
+          if (recRes.ok) {
+            const existingRecords = await recRes.json();
+            if (existingRecords && existingRecords.length > 0) {
+              alert("Anda sudah melakukan presensi untuk sesi ini.");
+              setStatusMsg("Presensi tercatat sebelumnya.");
+              setLoading(false);
+              return;
+            }
           }
 
           // 3. Fetch Geofence Config
@@ -230,32 +255,46 @@ export default function AttendancePage() {
             }
           }
 
-          // Check late tolerance (e.g. 15 mins late threshold)
+          // Check late tolerance
           if (status === 'HADIR') {
-            const timeDiffMins = (now - startTime) / (1000 * 60);
-            if (timeDiffMins > 15) {
-              status = 'TERLAMBAT';
+            if (sessionData.session_type === 'HARIAN_MASUK') {
+              const currentHour = now.getHours();
+              const currentMinute = now.getMinutes();
+              const currentTimeVal = currentHour * 60 + currentMinute;
+              const limitTimeVal = 6 * 60 + 30; // 06:30
+
+              if (currentTimeVal > limitTimeVal) {
+                status = 'TERLAMBAT';
+              }
+            } else {
+              const timeDiffMins = (now - startTime) / (1000 * 60);
+              if (timeDiffMins > 15) {
+                status = 'TERLAMBAT';
+              }
             }
           }
 
           setStatusMsg("Menyimpan data presensi...");
 
-          // 4. Insert Record to DB
-          const { data: record, error: insertError } = await supabase
-            .from('sr_attendance_records')
-            .insert([{
-              session_id: sessionData.id,
-              student_id: user.id,
-              status: status,
-              latitude: latitude,
-              longitude: longitude,
-              reason: reason
-            }])
-            .select()
-            .single();
+          // 4. Insert Record to DB/local fallback
+          const recordPayload = {
+            session_id: sessionData.id,
+            student_id: user.id,
+            status: status,
+            latitude: latitude,
+            longitude: longitude,
+            reason: reason
+          };
 
-          if (insertError) {
-            throw insertError;
+          const insertRes = await fetch('/api/records', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(recordPayload)
+          });
+
+          if (!insertRes.ok) {
+            const err = await insertRes.json();
+            throw new Error(err.error || "Gagal menyimpan presensi.");
           }
 
           // 5. Update Point Ledger
@@ -267,14 +306,18 @@ export default function AttendancePage() {
           }
 
           if (pointDelta !== 0) {
-            await supabase
-              .from('sr_point_ledgers')
-              .insert([{
-                student_id: user.id,
-                source_type: 'PRESENSI',
-                source_id: record.id,
-                delta_point: pointDelta
-              }]);
+            try {
+              await supabase
+                .from('sr_point_ledgers')
+                .insert([{
+                  student_id: user.id,
+                  source_type: 'PRESENSI',
+                  source_id: sessionData.id,
+                  delta_point: pointDelta
+                }]);
+            } catch (pointErr) {
+              console.warn("Gagal menyimpan poin ke remote DB:", pointErr);
+            }
           }
 
           // Complete
@@ -320,7 +363,7 @@ export default function AttendancePage() {
       <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(245,158,11,0.05)' }}>
         <MapPin size={24} color="var(--primary-color)" />
         <div>
-          <h4 style={{ fontSize: 13, fontWeight: 'bold', color: 'white', margin: 0 }}>Geofence SMAN 2 Bandung</h4>
+          <h4 style={{ fontSize: 13, fontWeight: 'bold', color: 'var(--text-light)', margin: 0 }}>Geofence SMAN 2 Bandung</h4>
           <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
             Pastikan Anda berada dalam wilayah sekolah saat memindai QR.
           </p>
@@ -348,7 +391,7 @@ export default function AttendancePage() {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: 20, textAlign: 'center' }}>
             <Camera size={48} color="var(--text-muted)" style={{ opacity: 0.5 }} />
             <div>
-              <p style={{ fontSize: 14, color: 'white', fontWeight: 'bold' }}>Kamera Nonaktif</p>
+              <p style={{ fontSize: 14, color: 'var(--text-light)', fontWeight: 'bold' }}>Kamera Nonaktif</p>
               <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Klik tombol di bawah untuk mengaktifkan pemindai kamera.</p>
             </div>
             <button onClick={startScanning} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
@@ -365,7 +408,7 @@ export default function AttendancePage() {
             alignItems: 'center', justifyContent: 'center', gap: 12, zIndex: 10
           }}>
             <RefreshCw className="animate-spin" size={32} color="var(--primary-color)" />
-            <span style={{ fontSize: 14, color: 'white', fontWeight: 'bold' }}>{statusMsg}</span>
+            <span style={{ fontSize: 14, color: 'var(--text-light)', fontWeight: 'bold' }}>{statusMsg}</span>
           </div>
         )}
       </div>

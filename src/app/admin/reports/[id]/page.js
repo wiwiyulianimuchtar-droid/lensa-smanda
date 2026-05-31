@@ -17,6 +17,8 @@ export default function ReportCard({ params }) {
     fetchReportData();
   }, [studentId]);
 
+  const [ledgers, setLedgers] = useState([]);
+
   const fetchReportData = async () => {
     setLoading(true);
     // 1. Fetch Student Profile
@@ -26,7 +28,13 @@ export default function ReportCard({ params }) {
       .eq('id', studentId)
       .single();
 
-    // 2. Fetch Activities (Discipline & Achievements from DB)
+    // 2. Fetch Point Ledgers
+    const { data: pointLedgers } = await supabase
+      .from('sr_point_ledgers')
+      .select('*')
+      .eq('student_id', studentId);
+
+    // 3. Fetch Activities (Discipline & Achievements from DB)
     const { data: acts } = await supabase
       .from('sr_activities')
       .select(`
@@ -39,20 +47,14 @@ export default function ReportCard({ params }) {
 
     if (profile) setStudent(profile);
     if (acts) setActivities(acts);
+    if (pointLedgers) setLedgers(pointLedgers);
     
     setLoading(false);
   };
 
   // Kalkulasi Poin Logika
-  // Asumsi Base Point (Poin Awal Siswa) = 2000 (Sesuai dengan rentang 'Normal' 1901-2100)
   const BASE_POINT = 2000;
-  let totalPoints = BASE_POINT;
-  
-  activities.forEach(act => {
-    const point = act.sr_point_rules?.default_point || 0;
-    if (act.type === 'POSITIF') totalPoints += point;
-    if (act.type === 'NEGATIF') totalPoints -= point;
-  });
+  let totalPoints = BASE_POINT + ledgers.reduce((acc, curr) => acc + curr.delta_point, 0);
 
   // Logika Predikat Status
   let statusText = "Istimewa";
@@ -115,14 +117,14 @@ export default function ReportCard({ params }) {
       >
         {/* HEADER / KOP SURAT */}
         <div style={{display: 'flex', alignItems: 'center', borderBottom: '3px solid black', paddingBottom: 15, marginBottom: 20}}>
-          <img src="/logo.png" alt="Logo" style={{width: 80, height: 80, objectFit: 'contain'}} />
+          <img src="/logo.png" alt="Logo" style={{width: 95, height: 95, objectFit: 'contain'}} />
           <div style={{flex: 1, textAlign: 'center'}}>
             <h2 style={{margin: 0, fontSize: 18, textTransform: 'uppercase', letterSpacing: 1}}>Pemerintah Daerah Provinsi Jawa Barat</h2>
             <h2 style={{margin: '5px 0', fontSize: 18, textTransform: 'uppercase', letterSpacing: 1}}>Dinas Pendidikan</h2>
             <h1 style={{margin: 0, fontSize: 24, fontWeight: 'bold', letterSpacing: 2}}>SMA NEGERI 2 BANDUNG</h1>
             <p style={{margin: '5px 0 0 0', fontSize: 12}}>Jl. Cihampelas No.173, Cipaganti, Coblong, Kota Bandung, Jawa Barat 40131</p>
           </div>
-          <div style={{width: 80}}></div> {/* Spacer for balance */}
+          <div style={{width: 95}}></div> {/* Spacer for balance */}
         </div>
 
         <h3 style={{textAlign: 'center', margin: '20px 0', textDecoration: 'underline', fontSize: 18}}>LAPORAN PERKEMBANGAN KARAKTER & EKSKUL</h3>

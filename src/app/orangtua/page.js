@@ -14,12 +14,21 @@ import {
   ArrowRight,
   ShieldAlert,
   User,
-  Activity
+  Activity,
+  Sun,
+  Moon,
+  MessageSquare,
+  Phone,
+  X,
+  Send,
+  Image as ImageIcon
 } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function ParentDashboard() {
   const { user, profile } = useAuth();
   const router = useRouter();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const [loading, setLoading] = useState(true);
   const [child, setChild] = useState(null);
@@ -31,8 +40,61 @@ export default function ParentDashboard() {
     status: '',
     label: 'Belum Presensi'
   });
+  const [announcements, setAnnouncements] = useState([]);
+  const [selectedAnn, setSelectedAnn] = useState(null);
+
+  // Chatbot & Hallo BK states
+  const [showChatbot, setShowChatbot] = useState(false);
+  const [showBKModal, setShowBKModal] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'bot', text: 'Halo! Saya chatbot SMANDA. Silakan coba tanyakan perkembangan atau skor poin anak Anda.' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  const handleSendChat = (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userText = chatInput.trim();
+    const newMessages = [...chatMessages, { sender: 'user', text: userText }];
+    setChatMessages(newMessages);
+    setChatInput('');
+
+    setTimeout(() => {
+      let botResponse = 'Maaf, saya tidak memahami pertanyaan tersebut. Hubungi Hotline Humas untuk bantuan langsung.';
+      const text = userText.toLowerCase();
+
+      if (text.includes('point') || text.includes('poin') || text.includes('skor') || text.includes('rapor')) {
+        botResponse = `Skor poin karakter anak Anda saat ini adalah ${totalPoints} Poin dengan predikat ${predikat.label}.`;
+      } else if (text.includes('izin') || text.includes('perizinan') || text.includes('sakit')) {
+        botResponse = 'Siswa dapat mengajukan izin melalui akun dasbor Siswa. Wali kelas atau piket akan meninjau permohonan tersebut secara real-time.';
+      } else if (text.includes('presensi') || text.includes('hadir') || text.includes('masuk')) {
+        botResponse = todayAttendance.done 
+          ? `Anak Anda hari ini tercatat ${todayAttendance.label} pada pukul ${todayAttendance.time}.`
+          : 'Hari ini anak Anda belum tercatat melakukan presensi masuk.';
+      } else if (text.includes('halo') || text.includes('hai')) {
+        botResponse = 'Halo! Saya chatbot SMANDA. Ada yang bisa saya bantu terkait laporan perkembangan anak Anda?';
+      }
+
+      setChatMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
+    }, 800);
+  };
+
+  const fetchLatestAnnouncement = async () => {
+    try {
+      const res = await fetch('/api/announcements');
+      if (res.ok) {
+        const data = await res.json();
+        const active = data.filter(item => item.is_active && item.target_audience === 'SEMUA');
+        setAnnouncements(active);
+      }
+    } catch (e) {
+      console.error("Gagal memuat pengumuman dinamis:", e);
+    }
+  };
 
   useEffect(() => {
+    fetchLatestAnnouncement();
     if (user?.id && profile?.parent_id) {
       loadChildData(profile.parent_id);
     } else if (profile && !profile.parent_id) {
@@ -155,7 +217,7 @@ export default function ParentDashboard() {
     return (
       <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center', mt: 40 }}>
         <ShieldAlert size={48} color="var(--danger-color)" />
-        <h3 style={{ color: 'white' }}>Akun Belum Terhubung</h3>
+        <h3 style={{ color: 'var(--text-light)' }}>Akun Belum Terhubung</h3>
         <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
           Akun orang tua Anda belum terhubung ke profil Siswa mana pun. Hubungi pihak sekolah (Admin IT) untuk mengaitkan akun Anda.
         </p>
@@ -166,30 +228,137 @@ export default function ParentDashboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header Greeting */}
-      <div>
-        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Portal Monitoring Orang Tua</span>
-        <h2 style={{ fontSize: 24, fontWeight: '800', marginTop: 2 }}>
-          Selamat Datang!
-        </h2>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Pantau perkembangan belajar dan kedisiplinan anak Anda secara real-time.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Foto Pengguna / Avatar */}
+          <div style={{
+            width: 48, height: 48, borderRadius: 'var(--radius-md)',
+            background: 'var(--surface-dark)', border: '1px solid var(--banner-border)',
+            boxShadow: 'var(--shadow-glass)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)',
+            overflow: 'hidden', flexShrink: 0
+          }}>
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <User size={24} />
+            )}
+          </div>
+          <div>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Portal Monitoring Orang Tua</span>
+            <h2 style={{ fontSize: 22, fontWeight: '800', marginTop: 2, margin: 0 }}>
+              Selamat Datang, <span style={{ color: 'var(--banner-accent)' }}>{profile?.full_name?.split(' ')[0] || 'Orang Tua'}</span>!
+            </h2>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Pantau aktivitas & perkembangan anak.
+            </p>
+          </div>
+        </div>
+        <button 
+          onClick={toggleTheme}
+          style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: 'rgba(255,255,255,0.05)', border: '1px solid var(--surface-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-light)',
+            flexShrink: 0
+          }}
+        >
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
       </div>
 
       {/* Child Profile Card */}
-      <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'linear-gradient(135deg, rgba(30,58,138,0.2) 0%, rgba(245,158,11,0.02) 100%)' }}>
+      <div className="glass-panel" style={{ 
+        display: 'flex', alignItems: 'center', gap: 16, 
+        background: 'var(--banner-bg)', border: '1px solid var(--banner-border)',
+        borderLeft: '4px solid var(--banner-accent)'
+      }}>
         <div style={{
-          width: 54, height: 54, borderRadius: 12, background: 'rgba(255,255,255,0.05)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-color)'
+          width: 54, height: 54, borderRadius: 12, background: 'rgba(255,255,255,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--banner-text)'
         }}>
           <User size={24} />
         </div>
         <div>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 'bold' }}>MONITORING ANAK:</span>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', color: 'white', margin: 0, marginTop: 2 }}>{child?.full_name}</h3>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-            Kelas: <strong>{child?.class_name || '-'}</strong> | NISN: <strong>{child?.nomor_induk || '-'}</strong>
+          <span style={{ fontSize: 11, color: 'var(--banner-text-muted)', fontWeight: 'bold' }}>MONITORING ANAK:</span>
+          <h3 style={{ fontSize: 16, fontWeight: 'bold', color: 'var(--banner-text)', margin: 0, marginTop: 2 }}>{child?.full_name}</h3>
+          <p style={{ fontSize: 12, color: 'var(--banner-text-muted)', marginTop: 2 }}>
+            Kelas: <strong style={{ color: 'var(--banner-text)' }}>{child?.class_name || '-'}</strong> | NISN: <strong style={{ color: 'var(--banner-text)' }}>{child?.nomor_induk || '-'}</strong>
           </p>
         </div>
       </div>
+
+      {/* Announcement Horizontal Carousel */}
+      {announcements.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            overflowX: 'auto',
+            gap: 12,
+            scrollSnapType: 'x mandatory',
+            WebkitOverflowScrolling: 'touch',
+            paddingBottom: 4
+          }}>
+            {announcements.map((ann) => (
+              <div 
+                key={ann.id || ann.title}
+                onClick={() => setSelectedAnn(ann)}
+                style={{
+                  background: 'var(--banner-bg)',
+                  border: '1px solid var(--banner-border)',
+                  borderLeft: '4px solid var(--banner-accent)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '16px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  boxShadow: 'var(--shadow-glass)',
+                  flex: '0 0 100%',
+                  scrollSnapAlign: 'start',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <div style={{ flexGrow: 1, minWidth: 0, paddingRight: 10 }}>
+                  <span style={{ 
+                    fontSize: 9, fontWeight: 'bold', background: 'var(--banner-accent)', 
+                    color: 'white', padding: '3px 8px', borderRadius: 6, display: 'inline-block', marginBottom: 8 
+                  }}>
+                    {ann.category || 'INFORMASI'}
+                  </span>
+                  <h3 style={{ fontSize: 14, fontWeight: '700', margin: 0, color: 'var(--banner-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ann.title}
+                  </h3>
+                  <p style={{ fontSize: 12, color: 'var(--banner-text-muted)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ann.content}
+                  </p>
+                  {ann.flyer_url && (
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: 10,
+                      color: 'var(--banner-accent)',
+                      fontWeight: 'bold',
+                      marginTop: 6
+                    }}>
+                      <ImageIcon size={12} />
+                      <span>Ada Flyer Pengumuman (Klik untuk detail)</span>
+                    </span>
+                  )}
+                </div>
+                <ArrowRight size={20} color="var(--banner-text)" style={{ flexShrink: 0 }} />
+              </div>
+            ))}
+          </div>
+          {announcements.length > 1 && (
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', alignSelf: 'flex-end', marginTop: 2 }}>
+              Geser kesamping untuk melihat lainnya ({announcements.length}) →
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Warning Notice Card if status is warning or danger */}
       {predikat.status !== 'normal' && (
@@ -208,7 +377,7 @@ export default function ParentDashboard() {
         >
           <ShieldAlert size={20} color={predikat.color} style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
-            <h4 style={{ fontSize: 13, fontWeight: 'bold', color: 'white', margin: 0 }}>Pemberitahuan Karakter Anak</h4>
+            <h4 style={{ fontSize: 13, fontWeight: 'bold', color: 'var(--text-light)', margin: 0 }}>Pemberitahuan Karakter Anak</h4>
             <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.4 }}>
               Skor karakter anak Anda berada di bawah normal ({totalPoints} Poin / {predikat.label}). Mohon ingatkan anak Anda untuk menghindari pelanggaran tata tertib sekolah.
             </p>
@@ -233,7 +402,7 @@ export default function ParentDashboard() {
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'baseline' }}>
-              <span style={{ fontSize: 32, fontWeight: '900', color: 'white' }}>{totalPoints}</span>
+              <span style={{ fontSize: 32, fontWeight: '900', color: 'var(--text-light)' }}>{totalPoints}</span>
               <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 4 }}>Poin</span>
             </div>
             <span style={{
@@ -248,6 +417,16 @@ export default function ParentDashboard() {
           <p style={{ fontSize: 11, color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>
             Poin dasar anak adalah 2000. Skor ini mempengaruhi penilaian akhir rapor perkembangan kepribadian dan akhlak siswa.
           </p>
+          <button 
+            onClick={() => setShowBKModal(true)}
+            className="btn-primary"
+            style={{ 
+              background: '#8b5cf6', display: 'flex', alignItems: 'center', 
+              justifyContent: 'center', gap: 8, padding: '10px 0', fontSize: 12, fontWeight: 'bold', marginTop: 10
+            }}
+          >
+            <MessageSquare size={14} /> Booking Konsultasi BK (Hallo BK)
+          </button>
         </div>
 
         {/* Card 2: Today's Attendance */}
@@ -263,7 +442,7 @@ export default function ParentDashboard() {
           </div>
 
           <div style={{
-            background: 'rgba(0,0,0,0.15)', border: '1px solid var(--surface-border)',
+            background: 'var(--card-inner-bg)', border: '1px solid var(--surface-border)',
             padding: 10, borderRadius: 8, display: 'flex', justifyBetween: true, alignItems: 'center', fontSize: 12
           }}>
             <div>
@@ -275,13 +454,13 @@ export default function ParentDashboard() {
                   : 'var(--text-muted)'
               }}>{todayAttendance.label}</span>
             </div>
-            <span style={{ color: 'white', fontWeight: 'bold' }}>{todayAttendance.time}</span>
+            <span style={{ color: 'var(--text-light)', fontWeight: 'bold' }}>{todayAttendance.time}</span>
           </div>
 
           <button 
             onClick={() => router.push('/orangtua/attendance')}
             style={{
-              background: 'transparent', border: '1px solid var(--surface-border)', color: 'white',
+              background: 'transparent', border: '1px solid var(--surface-border)', color: 'var(--text-light)',
               fontSize: 12, padding: '10px 0', borderRadius: 10, display: 'flex', alignItems: 'center',
               justifyContent: 'center', gap: 6, fontWeight: 'bold', transition: 'all 0.2s', cursor: 'pointer'
             }}
@@ -328,7 +507,7 @@ export default function ParentDashboard() {
                 </div>
 
                 <div style={{ flexGrow: 1, minWidth: 0 }}>
-                  <h4 style={{ fontSize: 13, fontWeight: 'bold', color: 'white', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <h4 style={{ fontSize: 13, fontWeight: 'bold', color: 'var(--text-light)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {log.title}
                   </h4>
                   <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
@@ -354,6 +533,187 @@ export default function ParentDashboard() {
           </div>
         )}
       </div>
+
+      {/* Floating WhatsApp Hotline */}
+      <a 
+        href="https://wa.me/6281234567890?text=Halo%20Helpline%20SMAN%202%20Bandung..." 
+        target="_blank" rel="noreferrer"
+        style={{
+          position: 'fixed', bottom: 85, right: 20, width: 56, height: 56, borderRadius: '50%',
+          background: '#25d366', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)', zIndex: 999, cursor: 'pointer', transition: 'all 0.2s'
+        }}
+        title="WhatsApp Hotline"
+      >
+        <Phone size={24} />
+      </a>
+
+      {/* Floating Chatbot Bubble */}
+      <button 
+        onClick={() => setShowChatbot(!showChatbot)}
+        style={{
+          position: 'fixed', bottom: 20, right: 20, width: 56, height: 56, borderRadius: '50%',
+          background: 'var(--primary-color)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)', zIndex: 999, cursor: 'pointer', transition: 'all 0.2s', border: 'none'
+        }}
+        title="Chatbot Sekolah"
+      >
+        {showChatbot ? <X size={24} /> : <MessageSquare size={24} />}
+      </button>
+
+      {/* Chatbot Window */}
+      {showChatbot && (
+        <div style={{
+          position: 'fixed', bottom: 90, right: 20, width: 330, height: 420,
+          background: 'var(--surface-dark)', border: '1px solid var(--surface-border)',
+          borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 1000,
+          display: 'flex', flexDirection: 'column', overflow: 'hidden'
+        }}>
+          <div style={{
+            background: 'var(--banner-bg)', borderBottom: '1px solid var(--banner-border)',
+            padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <span style={{fontWeight: 'bold', color: 'white', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6}}>
+              <MessageSquare size={16} /> Chatbot Monitoring Orangtua
+            </span>
+            <button onClick={() => setShowChatbot(false)} style={{background: 'transparent', border: 'none', color: 'white', cursor: 'pointer'}}>
+              <X size={16} />
+            </button>
+          </div>
+
+          <div style={{flexGrow: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10}}>
+            {chatMessages.map((msg, index) => (
+              <div 
+                key={index}
+                style={{
+                  alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  background: msg.sender === 'user' ? 'var(--primary-color)' : 'rgba(255,255,255,0.05)',
+                  border: msg.sender === 'user' ? 'none' : '1px solid var(--surface-border)',
+                  color: 'white', padding: '8px 12px', borderRadius: 12, fontSize: 12, maxWidth: '85%', lineHeight: 1.4
+                }}
+              >
+                {msg.text}
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={handleSendChat} style={{borderTop: '1px solid var(--surface-border)', padding: 10, display: 'flex', gap: 8, background: 'rgba(0,0,0,0.1)'}}>
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder="Tanyakan point, izin, atau presensi..." 
+              value={chatInput} 
+              onChange={e => setChatInput(e.target.value)}
+              style={{flexGrow: 1, height: 36, fontSize: 12}}
+            />
+            <button type="submit" className="btn-primary" style={{width: 36, height: 36, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <Send size={14} />
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Hallo BK Development Modal */}
+      {showBKModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(2, 6, 23, 0.8)', backdropFilter: 'blur(10px)',
+          zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div className="glass-panel" style={{
+            maxWidth: 400, width: '100%', padding: 24, textAlign: 'center',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+            boxShadow: 'var(--shadow-glass)', border: '1px solid var(--surface-border)'
+          }}>
+            <div style={{
+              width: 60, height: 60, borderRadius: 20, 
+              background: 'rgba(139, 92, 246, 0.1)', 
+              color: '#8b5cf6',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <MessageSquare size={32} />
+            </div>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 'bold', color: 'white' }}>Layanan Hallo BK</h3>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+              Layanan konsultasi online bimbingan konseling ("Hallo BK") SMAN 2 Bandung saat ini sedang dipersiapkan dan masih dalam tahap pengembangan.
+            </p>
+            <button 
+              onClick={() => setShowBKModal(false)}
+              className="btn-primary" 
+              style={{ width: '100%', padding: '12px 0', fontSize: 14 }}
+            >
+              Kembali ke Dasbor
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Announcement Detail Modal */}
+      {selectedAnn && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(2, 6, 23, 0.85)', backdropFilter: 'blur(10px)',
+          zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div style={{
+            background: 'var(--surface-dark)', border: '1px solid var(--surface-border)',
+            borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 500,
+            display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            boxShadow: 'var(--shadow-lg)'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '16px 20px', borderBottom: '1px solid var(--surface-border)'
+            }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 'bold', color: 'var(--text-light)' }}>
+                Detail Pengumuman Sekolah
+              </h3>
+              <button 
+                onClick={() => setSelectedAnn(null)}
+                style={{ background: 'transparent', color: 'var(--text-muted)', border: 'none', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: 20, overflowY: 'auto', maxHeight: '70vh', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ 
+                  fontSize: 10, fontWeight: 'bold', background: 'var(--banner-accent)', 
+                  color: 'white', padding: '3px 8px', borderRadius: 6
+                }}>
+                  {selectedAnn.category || 'INFORMASI'}
+                </span>
+                {selectedAnn.created_at && (
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                    {new Date(selectedAnn.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+              <h2 style={{ fontSize: 18, fontWeight: 'bold', margin: 0, color: 'var(--text-light)' }}>
+                {selectedAnn.title}
+              </h2>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                {selectedAnn.content}
+              </p>
+
+              {selectedAnn.flyer_url && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
+                  <label style={{ fontSize: 12, fontWeight: 'bold', color: 'var(--text-light)' }}>Flyer Lampiran:</label>
+                  <div style={{ padding: 10, background: '#000', borderRadius: 8, display: 'flex', justifyContent: 'center' }}>
+                    <img 
+                      src={selectedAnn.flyer_url} 
+                      alt="Flyer Lampiran" 
+                      style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain', borderRadius: 4 }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

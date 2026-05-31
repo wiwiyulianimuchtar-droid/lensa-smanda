@@ -12,39 +12,70 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    console.log("Login: handleLogin triggered");
+    if (e) {
+      e.preventDefault();
+      console.log("Login: preventDefault called");
+    }
     setLoading(true);
     setError(null);
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (authError) {
-      setError("Email atau Password salah!");
-      setLoading(false);
-      return;
+    let loginEmail = email.trim();
+    if (!loginEmail.includes('@')) {
+      loginEmail = `${loginEmail}@lensa.smanda.id`;
     }
 
-    const { data: userData, error: profileError } = await supabase
-      .from('sr_profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single();
+    console.log("Login: Attempting sign in for:", loginEmail);
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password,
+      });
 
-    if (profileError || !userData) {
-      setError("Profil tidak ditemukan.");
+      console.log("Login: signInWithPassword result:", { user: data?.user?.id, error: authError });
+
+      if (authError) {
+        console.warn("Login: authError returned:", authError);
+        setError("Email atau Password salah!");
+        setLoading(false);
+        return;
+      }
+
+      if (!data?.user) {
+        console.warn("Login: user data is empty");
+        setError("Gagal mendapatkan data pengguna.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Login: Fetching profile role for user:", data.user.id);
+      const { data: userData, error: profileError } = await supabase
+        .from('sr_profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      console.log("Login: profile query result:", { userData, profileError });
+
+      if (profileError || !userData) {
+        console.error("Login: profileError or no userData:", profileError);
+        setError("Profil tidak ditemukan di database.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Login: successful. Role is:", userData.role);
+      if (userData.role === 'SISWA') {
+        router.replace('/siswa');
+      } else if (userData.role === 'ORANG_TUA') {
+        router.replace('/orangtua');
+      } else {
+        router.replace('/admin');
+      }
+    } catch (err) {
+      console.error("Login: unexpected exception caught:", err);
+      setError(`Koneksi gagal: ${err.message || err}`);
       setLoading(false);
-      return;
-    }
-
-    if (userData.role === 'SISWA') {
-      router.replace('/siswa');
-    } else if (userData.role === 'ORANG_TUA') {
-      router.replace('/orangtua');
-    } else {
-      router.replace('/admin');
     }
   };
 
@@ -57,17 +88,16 @@ export default function LoginPage() {
       background: 'var(--background)',
       padding: 20
     }}>
-      <div className="glass-panel animate-fade-in" style={{
+      <div className="glass-panel animate-fade-in login-card" style={{
         maxWidth: 450, 
         width: '100%',
-        padding: '40px 30px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
         border: '1px solid rgba(255,255,255,0.1)'
       }}>
         
         <div style={{textAlign: 'center', marginBottom: 30}}>
           <div style={{
-            width: 90, height: 90, margin: '0 auto 12px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            width: 120, height: 120, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
              <img 
                src="/logo.png" 
@@ -75,8 +105,16 @@ export default function LoginPage() {
                style={{width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5))'}}
              />
           </div>
-          <h1 style={{fontSize: 24, fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: 1}}>SMANDA</h1>
-          <p className="text-muted" style={{fontSize: 14, letterSpacing: 2}}>SMART REPORT ADMIN</p>
+          <h1 style={{fontSize: 24, fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: 1}}>LENSA - SMANDA</h1>
+          <p className="text-muted" style={{
+            fontSize: '10px',
+            letterSpacing: '0.2px',
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
+            margin: '0 auto'
+          }}>
+            Log of Educational Network, Students & Attendance
+          </p>
         </div>
 
         {error && (
@@ -90,18 +128,18 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} action="javascript:void(0);">
           <div style={{marginBottom: 20}}>
-            <label style={{display: 'block', marginBottom: 8, fontSize: 14, color: 'var(--text-muted)'}}>Email Akademik</label>
+            <label style={{display: 'block', marginBottom: 8, fontSize: 14, color: 'var(--text-muted)'}}>NIP / NISN / Email Akademik</label>
             <div className="form-input" style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
               <Mail size={18} color="var(--text-muted)" style={{flexShrink: 0}} />
               <input 
-                type="email" 
-                placeholder="guru@sman2bandung.sch.id"
+                type="text" 
+                placeholder="Contoh: 1982... atau 00712..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                style={{background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none'}}
+                style={{background: 'transparent', border: 'none', color: 'var(--text-light)', width: '100%', outline: 'none'}}
               />
             </div>
           </div>
@@ -116,7 +154,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                style={{background: 'transparent', border: 'none', color: 'white', width: '100%', outline: 'none'}}
+                style={{background: 'transparent', border: 'none', color: 'var(--text-light)', width: '100%', outline: 'none'}}
               />
             </div>
           </div>
@@ -131,8 +169,8 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p style={{textAlign: 'center', marginTop: 24, fontSize: 12, color: 'var(--text-muted)'}}>
-          Sistem Informasi Kesiswaan Terpadu &copy; 2026
+        <p style={{textAlign: 'center', marginTop: 24, fontSize: 11, color: 'var(--text-muted)'}}>
+          Sistem Informasi SMAN 2 Bandung &copy; 2026 devbyIT-Team
         </p>
 
       </div>

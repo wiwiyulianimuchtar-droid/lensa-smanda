@@ -38,28 +38,44 @@ export default function ParentAttendancePage() {
       }
 
       // 2. Fetch attendance records
-      const { data, error } = await supabase
-        .from('sr_attendance_records')
-        .select(`
-          id, status, created_at, reason,
-          session:session_id (session_type, start_time)
-        `)
-        .eq('student_id', childId)
-        .order('created_at', { ascending: false });
+      const res = await fetch(`/api/records?student_id=${childId}`);
+      if (res.ok) {
+        const data = await res.json();
+        
+        // Fetch sessions to join locally
+        const sessionRes = await fetch('/api/sessions');
+        const sessionsList = sessionRes.ok ? await sessionRes.json() : [];
 
-      if (!error && data) {
-        setRecords(data);
+        const joinedData = data.map(rec => {
+          const session = sessionsList.find(s => s.id === rec.session_id);
+          return {
+            ...rec,
+            session: session || rec.session
+          };
+        });
+
+        setRecords(joinedData);
 
         // Calculate counts
         let hadir = 0;
         let terlambat = 0;
         let ditolak = 0;
-        data.forEach(r => {
+        let sakit = 0;
+        let izin = 0;
+        let alpa = 0;
+        let dispen = 0;
+
+        joinedData.forEach(r => {
           if (r.status === 'HADIR') hadir++;
           else if (r.status === 'TERLAMBAT') terlambat++;
+          else if (r.status === 'SAKIT') sakit++;
+          else if (r.status === 'IZIN') izin++;
+          else if (r.status === 'ALPA') alpa++;
+          else if (r.status === 'DISPEN') dispen++;
           else if (r.status === 'DITOLAK') ditolak++;
         });
-        setStats({ hadir, terlambat, ditolak });
+
+        setStats({ hadir, terlambat, ditolak, sakit, izin, alpa, dispen });
       }
     } catch (e) {
       console.error(e);
@@ -82,6 +98,30 @@ export default function ParentAttendancePage() {
             <Clock size={10} /> Terlambat
           </span>
         );
+      case 'SAKIT':
+        return (
+          <span className="badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '10px' }}>
+            <AlertTriangle size={10} /> Sakit
+          </span>
+        );
+      case 'IZIN':
+        return (
+          <span className="badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(245, 158, 11, 0.1)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '10px' }}>
+            <AlertTriangle size={10} /> Izin
+          </span>
+        );
+      case 'ALPA':
+        return (
+          <span className="badge badge-danger" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <XCircle size={10} /> Alpa
+          </span>
+        );
+      case 'DISPEN':
+        return (
+          <span className="badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(6, 182, 212, 0.1)', color: '#22d3ee', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '10px' }}>
+            <CheckCircle size={10} /> Dispen
+          </span>
+        );
       default:
         return (
           <span className="badge badge-danger" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
@@ -89,6 +129,36 @@ export default function ParentAttendancePage() {
           </span>
         );
     }
+  };
+
+  const getSessionTypeLabel = (session_type, title = '') => {
+    let label = '';
+    switch (session_type) {
+      case 'HARIAN_MASUK':
+        label = 'Masuk Harian';
+        break;
+      case 'HARIAN_PULANG':
+        label = 'Pulang Harian';
+        break;
+      case 'MAPEL':
+        label = 'Mapel KBM';
+        break;
+      case 'KEGIATAN':
+        label = 'Kegiatan';
+        break;
+      case 'UJIAN':
+        label = 'Ujian';
+        break;
+      case 'EKSKUL':
+        label = 'Ekskul';
+        break;
+      default:
+        label = 'Sesi Kelas';
+    }
+    if (title) {
+      return `${label} - ${title}`;
+    }
+    return label;
   };
 
   return (
@@ -108,18 +178,30 @@ export default function ParentAttendancePage() {
       </div>
 
       {/* Stats Summary Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-        <div className="glass-panel" style={{ padding: 12, textAlign: 'center' }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>HADIR</span>
-          <span style={{ fontSize: 20, fontWeight: '900', color: '#10b981' }}>{stats.hadir}</span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: 10 }}>
+        <div className="glass-panel" style={{ padding: 10, textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>HADIR</span>
+          <span style={{ fontSize: 16, fontWeight: '900', color: '#10b981' }}>{stats.hadir}</span>
         </div>
-        <div className="glass-panel" style={{ padding: 12, textAlign: 'center' }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>TELAT</span>
-          <span style={{ fontSize: 20, fontWeight: '900', color: '#f59e0b' }}>{stats.terlambat}</span>
+        <div className="glass-panel" style={{ padding: 10, textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>TELAT</span>
+          <span style={{ fontSize: 16, fontWeight: '900', color: '#f59e0b' }}>{stats.terlambat}</span>
         </div>
-        <div className="glass-panel" style={{ padding: 12, textAlign: 'center' }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>DITOLAK</span>
-          <span style={{ fontSize: 20, fontWeight: '900', color: '#ef4444' }}>{stats.ditolak}</span>
+        <div className="glass-panel" style={{ padding: 10, textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>SAKIT</span>
+          <span style={{ fontSize: 16, fontWeight: '900', color: '#60a5fa' }}>{stats.sakit || 0}</span>
+        </div>
+        <div className="glass-panel" style={{ padding: 10, textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>IZIN</span>
+          <span style={{ fontSize: 16, fontWeight: '900', color: '#fbbf24' }}>{stats.izin || 0}</span>
+        </div>
+        <div className="glass-panel" style={{ padding: 10, textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>ALPA</span>
+          <span style={{ fontSize: 16, fontWeight: '900', color: '#f87171' }}>{stats.alpa || 0}</span>
+        </div>
+        <div className="glass-panel" style={{ padding: 10, textAlign: 'center' }}>
+          <span style={{ fontSize: 9, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>DISPEN</span>
+          <span style={{ fontSize: 16, fontWeight: '900', color: '#22d3ee' }}>{stats.dispen || 0}</span>
         </div>
       </div>
 
@@ -148,9 +230,7 @@ export default function ParentAttendancePage() {
                 hour: '2-digit', minute: '2-digit'
               }) + ' WIB';
               
-              const isHarianMasuk = rec.session?.session_type === 'HARIAN_MASUK';
-              const isHarianPulang = rec.session?.session_type === 'HARIAN_PULANG';
-              const sessionLabel = isHarianMasuk ? 'Masuk Harian' : isHarianPulang ? 'Pulang Harian' : 'Sesi Kelas';
+              const sessionLabel = getSessionTypeLabel(rec.session?.session_type, rec.session?.title);
 
               return (
                 <div 

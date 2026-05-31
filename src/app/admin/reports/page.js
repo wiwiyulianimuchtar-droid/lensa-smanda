@@ -50,7 +50,7 @@ export default function ReportsList() {
             <input 
               type="text" 
               placeholder="Cari nama atau kelas siswa..." 
-              style={{background: 'transparent', border: 'none', color: 'white', width: '100%'}}
+              style={{background: 'transparent', border: 'none', color: 'var(--text-light)', width: '100%'}}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

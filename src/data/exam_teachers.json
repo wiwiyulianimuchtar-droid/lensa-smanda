@@ -1,0 +1,257 @@
+[
+  {
+    "id": "mock-xt-1780197395666",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "d9145b5b-5ba7-4b28-b730-068d7a48acc6",
+    "teacher": {
+      "full_name": "Dra. Hj. Atin Supriatin",
+      "email": "196801161992032007@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:35.666Z"
+  },
+  {
+    "id": "mock-xt-1780197395846",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "d7d772f5-5bc4-40c1-ad60-9e036d5abcd0",
+    "teacher": {
+      "full_name": "Hj. Chandra Deviyanti, S.Pd, M.Si.",
+      "email": "196909201991032006@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:35.846Z"
+  },
+  {
+    "id": "mock-xt-1780197396046",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "27334ce6-aea6-475b-b5a8-517974bde25c",
+    "teacher": {
+      "full_name": "Aneng Widaningsih, S.Pd",
+      "email": "196711211991032005@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:36.046Z"
+  },
+  {
+    "id": "mock-xt-1780197396227",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "cdb45a2a-77fb-4ca0-8413-205684bb4e5e",
+    "teacher": {
+      "full_name": "Sofyan Agus Sulaeman, S.Pd., M.Pd",
+      "email": "197806022006041013@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:36.227Z"
+  },
+  {
+    "id": "mock-xt-1780197396394",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "c0aad991-507c-4090-83c4-f3d2290c9669",
+    "teacher": {
+      "full_name": "Hj. Nina Hasanah, S.Pd.",
+      "email": "196707162005012004@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:36.394Z"
+  },
+  {
+    "id": "mock-xt-1780197396561",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "6e15c40a-3587-4990-8642-620c849788af",
+    "teacher": {
+      "full_name": "Endang Feriyanti, S.Si.",
+      "email": "197402222008012006@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:36.561Z"
+  },
+  {
+    "id": "mock-xt-1780197396739",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "c2363ef1-6958-44fe-8e71-7abba9152c89",
+    "teacher": {
+      "full_name": "Galih Raksaningrum, S.Pd., M.M.",
+      "email": "197403262005012006@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:36.739Z"
+  },
+  {
+    "id": "mock-xt-1780197396892",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "b4a12f76-a71c-4aa8-959e-749f45598346",
+    "teacher": {
+      "full_name": "Iskandar Dzulkarnain, MP.d.",
+      "email": "197205132006041014@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:36.892Z"
+  },
+  {
+    "id": "mock-xt-1780197397048",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "f874be52-b016-4949-a85d-dfd4c858fde1",
+    "teacher": {
+      "full_name": "Astrid Elvan, S.Pd.",
+      "email": "198406052009022002@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:37.048Z"
+  },
+  {
+    "id": "mock-xt-1780197397250",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "971c8fbd-4d78-4f20-b3c9-972db3cdede2",
+    "teacher": {
+      "full_name": "Muhammad Zein Hidayat, SS.",
+      "email": "197601212009011007@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:37.250Z"
+  },
+  {
+    "id": "mock-xt-1780197397479",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "a17ecf01-5cda-4b4e-a7ba-58d07837da4a",
+    "teacher": {
+      "full_name": "Sri Cahyati, S.Pd., M.Pd.",
+      "email": "199304062020122016@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:37.479Z"
+  },
+  {
+    "id": "mock-xt-1780197397626",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "5be53816-5774-4574-9320-7a0509ff38f5",
+    "teacher": {
+      "full_name": "Engkus Kusnadi, S.Pd.",
+      "email": "197508162022211003@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:37.626Z"
+  },
+  {
+    "id": "mock-xt-1780197397770",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "7c7b8666-adf7-48bc-ab8e-844ada0b87f3",
+    "teacher": {
+      "full_name": "Layla Nurlaylasari, S.Pd.",
+      "email": "197803162022212012@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:37.770Z"
+  },
+  {
+    "id": "mock-xt-1780197397916",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "a6b4d941-451c-444a-96d1-656560f1dbe1",
+    "teacher": {
+      "full_name": "Eka Khairunnisa,S.Pd.",
+      "email": "199212152022212011@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:37.916Z"
+  },
+  {
+    "id": "mock-xt-1780197398049",
+    "exam_id": "mock-exam-1780151816902",
+    "teacher_id": "7a161cfc-5bc5-46a8-bf2a-94341ddb1377",
+    "teacher": {
+      "full_name": "Azis Suryaman, S.Pd., Gr.",
+      "email": "199411112022211003@lensa.smanda.id"
+    },
+    "exam": {
+      "name": "PSAT 2026",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-12",
+      "id": "mock-exam-1780151816902",
+      "created_at": "2026-05-30T14:36:56.902Z"
+    },
+    "created_at": "2026-05-31T03:16:38.049Z"
+  }
+]

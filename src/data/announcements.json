@@ -1,0 +1,30 @@
+[
+  {
+    "id": null,
+    "title": "Presensi Pengawasan Ujian",
+    "content": "Mohon Bapak/Ibu Guru pengawas melakukan presensi sesuai dengan sesi pengawasan masing-masing",
+    "category": "PENGUMUMAN",
+    "target_audience": "GURU",
+    "flyer_url": "",
+    "is_active": true,
+    "created_at": "2026-05-31T02:01:07.076Z"
+  },
+  {
+    "id": null,
+    "title": "Informasi Kegiatan PSAT",
+    "content": "Mohon Bapak/Ibu Guru pengawas mencoba generate presensi sesuai sesi pengawasan",
+    "category": "INFORMASI",
+    "target_audience": "GURU",
+    "flyer_url": "",
+    "is_active": true,
+    "created_at": "2026-05-31T01:59:40.713Z"
+  },
+  {
+    "id": "mock-1",
+    "title": "Sosialisasi Smart-Report",
+    "content": "Uji coba portal Smart-Report berjalan dengan lancar. Presensi & perizinan kini terintegrasi secara daring.",
+    "category": "PENGUMUMAN",
+    "is_active": true,
+    "created_at": "2026-05-30T09:53:06.346Z"
+  }
+]

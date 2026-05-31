@@ -1,0 +1,22 @@
+[
+  {
+    "id": "type-1",
+    "name": "Guru Wali Kelas"
+  },
+  {
+    "id": "type-2",
+    "name": "Guru Piket KBM"
+  },
+  {
+    "id": "type-3",
+    "name": "Guru Piket UKS"
+  },
+  {
+    "id": "type-4",
+    "name": "Guru Pembina Ekskul"
+  },
+  {
+    "id": "type-5",
+    "name": "Guru Wali"
+  }
+]

@@ -23,6 +23,8 @@ export default function ApprovalAktivitas() {
         attachment_url,
         status,
         type,
+        student_id,
+        point_override,
         sr_profiles:student_id (full_name, class_name),
         sr_point_rules:rule_id (name, default_point)
       `)
@@ -49,8 +51,26 @@ export default function ApprovalAktivitas() {
       return;
     }
 
-    // 2. Jika APPROVED, idealnya insert ke sr_point_ledgers. 
-    // Untuk MVP, kita asumsikan status sudah cukup atau trigger DB akan menjalankannya.
+    // 2. Jika APPROVED, insert ke sr_point_ledgers
+    if (action === 'APPROVED') {
+      const act = activities.find(a => a.id === id);
+      if (act) {
+        const points = act.point_override || act.sr_point_rules?.default_point || 0;
+        const { error: ledgerError } = await supabase
+          .from('sr_point_ledgers')
+          .insert([{
+            student_id: act.student_id,
+            source_type: 'AKTIVITAS_POSITIF',
+            source_id: id,
+            delta_point: points
+          }]);
+          
+        if (ledgerError) {
+          console.error('Gagal menulis ke ledger:', ledgerError);
+        }
+      }
+    }
+
     alert(`Aktivitas berhasil di ${action}`);
     fetchActivities();
   };
@@ -91,7 +111,7 @@ export default function ApprovalAktivitas() {
                   <tr key={act.id}>
                     <td>{new Date(act.event_date).toLocaleString('id-ID', {day: 'numeric', month:'short', hour: '2-digit', minute:'2-digit'})}</td>
                     <td>
-                      <div style={{fontWeight: 'bold', color: 'white'}}>{act.sr_profiles?.full_name}</div>
+                      <div style={{fontWeight: 'bold', color: 'var(--text-light)'}}>{act.sr_profiles?.full_name}</div>
                       <div className="text-muted" style={{fontSize: 12}}>{act.sr_profiles?.class_name}</div>
                     </td>
                     <td>
