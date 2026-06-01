@@ -21,12 +21,47 @@ import {
   Phone,
   X,
   Send,
-  Image as ImageIcon
+  Image as ImageIcon,
+  BookOpen, ClipboardList, Trophy, FileText, Heart, GraduationCap, Bot, MessageCircle, MoreHorizontal
 } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function ParentDashboard() {
   const { user, profile } = useAuth();
+  // Services/Layanan Lainnya states
+  const services = [
+    { name: 'e-Library', icon: BookOpen, path: null, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+    { name: 'Perizinan', icon: ClipboardList, path: '/orangtua/perizinan', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.1)' },
+    { name: 'Ekskul', icon: Trophy, path: null, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+    { name: 'Layanan TU', icon: FileText, path: null, color: '#0d9488', bg: 'rgba(13, 148, 136, 0.1)' },
+    { name: 'Layanan UKS', icon: Heart, path: null, color: '#db2777', bg: 'rgba(219, 39, 119, 0.1)' },
+    { name: 'Akademik', icon: GraduationCap, path: null, color: '#059669', bg: 'rgba(5, 150, 105, 0.1)' },
+    { name: 'Hallo BK', icon: MessageSquare, action: 'bk', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.1)' },
+    { name: 'Hotline', icon: Phone, action: 'hotline', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+    { name: 'Q&A', icon: Bot, action: 'chatbot', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+    { name: 'Livechat', icon: MessageCircle, action: 'whatsapp', color: '#25d366', bg: 'rgba(37, 211, 102, 0.1)' },
+    { name: 'Lainnya', icon: MoreHorizontal, path: null, color: '#64748b', bg: 'rgba(100, 116, 139, 0.1)' }
+  ];
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [showHotlineModal, setShowHotlineModal] = useState(false);
+
+  const handleServiceClick = (service) => {
+    if (service.action === 'bk') {
+      setShowBKModal(true);
+    } else if (service.action === 'hotline') {
+      setShowHotlineModal(true);
+    } else if (service.action === 'chatbot') {
+      setShowChatbot(!showChatbot);
+    } else if (service.action === 'whatsapp') {
+      window.open('https://wa.me/6281234567890?text=Halo%20Humas%20SMAN%202%20Bandung...', '_blank');
+    } else if (service.path) {
+      router.push(service.path);
+    } else {
+      setSelectedService(service);
+      setShowPremiumModal(true);
+    }
+  };
   const router = useRouter();
   const { isDarkMode, toggleTheme } = useTheme();
 
@@ -471,6 +506,66 @@ export default function ParentDashboard() {
 
       </div>
 
+      {/* Layanan Lainnya Section for Orang Tua */}
+      <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya (Pengembangan Ke Depan)</h3>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '20px 12px',
+          justifyItems: 'center'
+        }}>
+          {services.map((service, index) => {
+            const Icon = service.icon;
+            return (
+              <div 
+                key={index}
+                onClick={() => handleServiceClick(service)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  width: '100%',
+                  transition: 'transform 0.2s ease'
+                }}
+                className="service-item"
+              >
+                <div 
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: 16,
+                    background: service.bg,
+                    color: service.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid var(--surface-border)',
+                    boxShadow: 'var(--shadow-glass)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  className="service-icon-wrapper"
+                >
+                  <Icon size={24} />
+                </div>
+                <span style={{
+                  fontSize: 10,
+                  color: 'var(--text-light)',
+                  marginTop: 8,
+                  textAlign: 'center',
+                  fontWeight: '500',
+                  lineHeight: 1.2
+                }}>
+                  {service.name}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Child's Recent Activities Logs */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -715,6 +810,98 @@ export default function ParentDashboard() {
         </div>
       )}
 
+      {/* Custom Premium/Development Modal */}
+      {showPremiumModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(2, 6, 23, 0.8)', backdropFilter: 'blur(10px)',
+          zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div className="glass-panel" style={{
+            maxWidth: 400, width: '100%', padding: 24, textAlign: 'center',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+            boxShadow: 'var(--shadow-glass)', border: '1px solid var(--surface-border)'
+          }}>
+            {selectedService && (
+              <div style={{
+                width: 60, height: 60, borderRadius: 20, 
+                background: selectedService.bg, 
+                color: selectedService.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                {(() => { const Icon = selectedService.icon; return <Icon size={32} />; })()}
+              </div>
+            )}
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 'bold', color: 'white' }}>Layanan {selectedService?.name}</h3>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+              Layanan {selectedService?.name} SMAN 2 Bandung saat ini sedang disiapkan oleh tim Humas & Akademik dan masih dalam tahap pengembangan ke depan.
+            </p>
+            <button 
+              onClick={() => setShowPremiumModal(false)}
+              className="btn-primary" 
+              style={{ width: '100%', padding: '12px 0', fontSize: 14 }}
+            >
+              Kembali ke Dasbor
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Hotline Modal */}
+      {showHotlineModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(2, 6, 23, 0.8)', backdropFilter: 'blur(10px)',
+          zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
+        }}>
+          <div className="glass-panel" style={{
+            maxWidth: 400, width: '100%', padding: 24,
+            display: 'flex', flexDirection: 'column', gap: 16,
+            boxShadow: 'var(--shadow-glass)', border: '1px solid var(--surface-border)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 16, 
+                background: 'rgba(245, 158, 11, 0.1)', 
+                color: '#f59e0b',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <Phone size={24} />
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 'bold', color: 'white' }}>Hotline SMAN 2 Bandung</h3>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Hubungi Humas & Administrasi</span>
+              </div>
+            </div>
+            
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.5, textAlign: 'left' }}>
+              Layanan hotline resmi sekolah dikelola langsung oleh tim Humas SMAN 2 Bandung. Hubungi kami untuk info KBM, perizinan khusus, dan pelayanan lainnya.
+            </p>
+
+            <div style={{
+              background: 'rgba(255,255,255,0.02)', border: '1px solid var(--surface-border)',
+              borderRadius: 12, padding: 14, display: 'flex', flexDirection: 'column', gap: 8
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                <span style={{ color: 'var(--text-muted)' }}>Nomor WhatsApp:</span>
+                <span style={{ fontWeight: 'bold', color: 'var(--text-light)' }}>+62 812-3456-7890</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+                <span style={{ color: 'var(--text-muted)' }}>Jam Kerja:</span>
+                <span style={{ color: 'var(--text-light)' }}>Senin - Jumat (07:00 - 15:30 WIB)</span>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setShowHotlineModal(false)}
+              className="btn-primary" 
+              style={{ width: '100%', padding: '12px 0', fontSize: 14 }}
+            >
+              Kembali ke Dasbor
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
