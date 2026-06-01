@@ -3366,69 +3366,70 @@ function AdminDashboardContent() {
 
           </div>
 
+          {/* Layanan Lainnya Section for Guru */}
+          <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya</h3>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: '20px 12px',
+              justifyItems: 'center'
+            }}>
+              {services.map((service, index) => {
+                const Icon = service.icon;
+                return (
+                  <div 
+                    key={index}
+                    onClick={() => handleServiceClick(service)}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      width: '100%',
+                      transition: 'transform 0.2s ease'
+                    }}
+                    className="service-item"
+                  >
+                    <div 
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: 16,
+                        background: service.bg,
+                        color: service.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid var(--surface-border)',
+                        boxShadow: 'var(--shadow-glass)',
+                        transition: 'all 0.2s ease'
+                      }}
+                      className="service-icon-wrapper"
+                    >
+                      <Icon size={24} />
+                    </div>
+                    <span style={{
+                      fontSize: 10,
+                      color: 'var(--text-light)',
+                      marginTop: 8,
+                      textAlign: 'center',
+                      fontWeight: '500',
+                      lineHeight: 1.2
+                    }}>
+                      {service.name}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
       )}
 
       {/* TAB CONTENT: TUGAS TAMBAHAN */}
-        {/* Layanan Lainnya Section for Guru */}
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya</h3>
-          
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '20px 12px',
-            justifyItems: 'center'
-          }}>
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <div 
-                  key={index}
-                  onClick={() => handleServiceClick(service)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    width: '100%',
-                    transition: 'transform 0.2s ease'
-                  }}
-                  className="service-item"
-                >
-                  <div 
-                    style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: 16,
-                      background: service.bg,
-                      color: service.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid var(--surface-border)',
-                      boxShadow: 'var(--shadow-glass)',
-                      transition: 'all 0.2s ease'
-                    }}
-                    className="service-icon-wrapper"
-                  >
-                    <Icon size={24} />
-                  </div>
-                  <span style={{
-                    fontSize: 10,
-                    color: 'var(--text-light)',
-                    marginTop: 8,
-                    textAlign: 'center',
-                    fontWeight: '500',
-                    lineHeight: 1.2
-                  }}>
-                    {service.name}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
       {guruActiveTab === 'tugas_tambahan' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
