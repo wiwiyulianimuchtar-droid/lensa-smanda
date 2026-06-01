@@ -508,7 +508,7 @@ export default function ParentDashboard() {
 
       {/* Layanan Lainnya Section for Orang Tua */}
       <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya (Pengembangan Ke Depan)</h3>
+        <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya</h3>
         
         <div style={{
           display: 'grid',

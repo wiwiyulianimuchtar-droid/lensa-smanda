@@ -2399,11 +2399,11 @@ function AdminDashboardContent() {
 
         {/* Layanan Lainnya Section for Admin/Manajemen */}
         <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya (Pengembangan Ke Depan)</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya</h3>
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '20px 12px',
             justifyItems: 'center'
           }}>
@@ -3364,11 +3364,11 @@ function AdminDashboardContent() {
       {/* TAB CONTENT: TUGAS TAMBAHAN */}
         {/* Layanan Lainnya Section for Guru */}
         <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 20 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya (Pengembangan Ke Depan)</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Layanan Lainnya</h3>
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+            gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '20px 12px',
             justifyItems: 'center'
           }}>
