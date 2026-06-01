@@ -52,6 +52,37 @@ function AdminDashboardContent() {
   const [showBKModal, setShowBKModal] = useState(false);
   const [showHotlineModal, setShowHotlineModal] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { sender: 'bot', text: 'Halo! Saya chatbot SMANDA. Silakan coba tanyakan hal-hal seputar sekolah (contoh: "point", "izin", "hadir").' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  const handleSendChat = (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userText = chatInput.trim();
+    const newMessages = [...chatMessages, { sender: 'user', text: userText }];
+    setChatMessages(newMessages);
+    setChatInput('');
+
+    setTimeout(() => {
+      let botResponse = 'Maaf, saya tidak memahami pertanyaan tersebut. Silakan tanyakan hal-hal lain atau hubungi Hotline Humas.';
+      const text = userText.toLowerCase();
+
+      if (text.includes('point') || text.includes('poin') || text.includes('skor') || text.includes('rapor')) {
+        botResponse = 'Anda dapat melihat poin karakter siswa melalui tab "Pelanggaran & Karakter" pada dasbor atau menu Laporan.';
+      } else if (text.includes('izin') || text.includes('perizinan') || text.includes('sakit')) {
+        botResponse = 'Guru dan staf piket dapat menyetujui atau menolak permohonan izin siswa langsung melalui menu Perizinan di dasbor.';
+      } else if (text.includes('presensi') || text.includes('hadir') || text.includes('masuk')) {
+        botResponse = 'Sistem mencatat presensi harian siswa secara real-time via scan QR code atau presensi kelas oleh pendidik.';
+      } else if (text.includes('halo') || text.includes('hai')) {
+        botResponse = 'Halo! Saya chatbot SMANDA. Ada yang bisa saya bantu terkait dasbor Pendidik & Tenaga Kependidikan?';
+      }
+
+      setChatMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
+    }, 800);
+  };
 
   const handleServiceClick = (service) => {
     if (service.action === 'bk') {
@@ -4377,6 +4408,58 @@ function AdminDashboardContent() {
               Kembali ke Dasbor
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Chatbot Window */}
+      {showChatbot && (
+        <div style={{
+          position: 'fixed', bottom: 20, right: 20, width: 330, height: 420,
+          background: 'var(--surface-dark)', border: '1px solid var(--surface-border)',
+          borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', zIndex: 2000,
+          display: 'flex', flexDirection: 'column', overflow: 'hidden'
+        }}>
+          <div style={{
+            background: 'var(--banner-bg)', borderBottom: '1px solid var(--banner-border)',
+            padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <span style={{fontWeight: 'bold', color: 'white', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6}}>
+              <MessageSquare size={16} /> Chatbot Asisten SMANDA
+            </span>
+            <button onClick={() => setShowChatbot(false)} style={{background: 'transparent', border: 'none', color: 'white', cursor: 'pointer'}}>
+              <X size={16} />
+            </button>
+          </div>
+
+          <div style={{flexGrow: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10}}>
+            {chatMessages.map((msg, index) => (
+              <div 
+                key={index}
+                style={{
+                  alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                  background: msg.sender === 'user' ? 'var(--primary-color)' : 'rgba(255,255,255,0.05)',
+                  border: msg.sender === 'user' ? 'none' : '1px solid var(--surface-border)',
+                  color: 'white', padding: '8px 12px', borderRadius: 12, fontSize: 12, maxWidth: '85%', lineHeight: 1.4
+                }}
+              >
+                {msg.text}
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={handleSendChat} style={{borderTop: '1px solid var(--surface-border)', padding: 10, display: 'flex', gap: 8, background: 'rgba(0,0,0,0.1)'}}>
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder="Tanyakan point, izin, atau presensi..." 
+              value={chatInput} 
+              onChange={e => setChatInput(e.target.value)}
+              style={{flexGrow: 1, height: 36, fontSize: 12}}
+            />
+            <button type="submit" className="btn-primary" style={{width: 36, height: 36, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+              <Send size={14} />
+            </button>
+          </form>
         </div>
       )}
     </div>
