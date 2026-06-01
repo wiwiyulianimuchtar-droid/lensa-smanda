@@ -54,8 +54,16 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     if (!confirm("Apakah Anda yakin ingin keluar?")) return;
-    await supabase.auth.signOut();
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
     router.replace('/login');
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Gagal signOut dari Supabase:", err);
+    }
   };
 
   return (
