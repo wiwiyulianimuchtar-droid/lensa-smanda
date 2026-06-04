@@ -464,10 +464,10 @@ export default function StudentDashboard() {
                 }}>
                   {ann.category || 'INFORMASI'}
                 </span>
-                <h3 style={{ fontSize: 14, fontWeight: '700', margin: 0, color: 'var(--banner-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <h3 style={{ fontSize: 14, fontWeight: '700', margin: 0, color: 'var(--banner-text)' }}>
                   {ann.title}
                 </h3>
-                <p style={{ fontSize: 12, color: 'var(--banner-text-muted)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 12, color: 'var(--banner-text-muted)', marginTop: 4 }}>
                   {ann.content}
                 </p>
                 {ann.flyer_url && (
@@ -743,7 +743,7 @@ export default function StudentDashboard() {
             </div>
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 'bold', color: 'white' }}>Layanan {selectedService?.name}</h3>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
-              Layanan {selectedService?.name} SMAN 2 Bandung saat ini sedang disiapkan oleh tim Humas & Akademik dan masih dalam tahap pengembangan.
+              Layanan {selectedService?.name} SMAN 2 Bandung saat ini sedang disiapkan oleh TIM IT dan masih dalam tahap pengembangan.
             </p>
             <button 
               onClick={() => setShowPremiumModal(false)}
